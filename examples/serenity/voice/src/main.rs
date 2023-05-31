@@ -71,7 +71,7 @@ async fn main() {
         let _ = client.start().await.map_err(|why| println!("Client ended: {:?}", why));
     });
     
-    tokio::signal::ctrl_c().await;
+    let _res = tokio::signal::ctrl_c().await.unwrap();
     println!("Received Ctrl-C, shutting down.");
 }
 
