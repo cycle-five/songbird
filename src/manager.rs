@@ -2,9 +2,7 @@ use crate::{
     error::{JoinError, JoinResult},
     id::{ChannelId, GuildId, UserId},
     shards::Sharder,
-    Call,
-    Config,
-    ConnectionInfo,
+    Call, Config, ConnectionInfo,
 };
 #[cfg(feature = "serenity")]
 use async_trait::async_trait;
@@ -12,16 +10,13 @@ use dashmap::DashMap;
 #[cfg(feature = "serenity")]
 use futures::channel::mpsc::UnboundedSender as Sender;
 use parking_lot::RwLock as PRwLock;
+use serenity::gateway::{ShardRunnerMessage, VoiceGatewayManager};
 #[cfg(feature = "serenity")]
-use serenity::{
-    client::bridge::voice::VoiceGatewayManager,
-    gateway::InterMessage,
-    model::{
-        id::{GuildId as SerenityGuild, UserId as SerenityUser},
-        voice::VoiceState,
-    },
+use serenity::model::{
+    id::{GuildId as SerenityGuild, UserId as SerenityUser},
+    voice::VoiceState,
 };
-use std::sync::Arc;
+use std::{num::NonZeroU64, sync::Arc};
 use tokio::sync::Mutex;
 use tracing::debug;
 #[cfg(feature = "twilight")]
@@ -390,30 +385,30 @@ impl Songbird {
 #[cfg(feature = "serenity")]
 #[async_trait]
 impl VoiceGatewayManager for Songbird {
-    async fn initialise(&self, shard_count: u64, user_id: SerenityUser) {
+    async fn initialise(&self, shard_count: u32, user_id: SerenityUser) {
         debug!(
             "Initialising Songbird for Serenity: ID {:?}, {} Shards",
             user_id, shard_count
         );
-        self.initialise_client_data(shard_count, user_id);
+        self.initialise_client_data(shard_count.into(), user_id);
         debug!("Songbird ({:?}) Initialised!", user_id);
     }
 
-    async fn register_shard(&self, shard_id: u64, sender: Sender<InterMessage>) {
+    async fn register_shard(&self, shard_id: u32, sender: Sender<ShardRunnerMessage>) {
         debug!(
             "Registering Serenity shard handle {} with Songbird",
             shard_id
         );
-        self.sharder.register_shard_handle(shard_id, sender);
+        self.sharder.register_shard_handle(shard_id.into(), sender);
         debug!("Registered shard handle {}.", shard_id);
     }
 
-    async fn deregister_shard(&self, shard_id: u64) {
+    async fn deregister_shard(&self, shard_id: u32) {
         debug!(
             "Deregistering Serenity shard handle {} with Songbird",
             shard_id
         );
-        self.sharder.deregister_shard_handle(shard_id);
+        self.sharder.deregister_shard_handle(shard_id.into());
         debug!("Deregistered shard handle {}.", shard_id);
     }
 
@@ -427,7 +422,7 @@ impl VoiceGatewayManager for Songbird {
     }
 
     async fn state_update(&self, guild_id: SerenityGuild, voice_state: &VoiceState) {
-        if voice_state.user_id.0 != self.client_data.read().user_id.0 {
+        if voice_state.user_id.0 != NonZeroU64::new(self.client_data.read().user_id.0).unwrap() {
             return;
         }
 

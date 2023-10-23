@@ -3,7 +3,7 @@
 #[cfg(feature = "serenity")]
 use futures::channel::mpsc::TrySendError;
 #[cfg(feature = "serenity")]
-use serenity::gateway::InterMessage;
+use serenity::gateway::ShardRunnerMessage as InterMessage;
 #[cfg(feature = "gateway-core")]
 use std::{error::Error, fmt};
 #[cfg(feature = "twilight")]

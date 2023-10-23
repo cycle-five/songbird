@@ -276,13 +276,14 @@ impl Track {
                                 TrackStateChange::Volume(self.volume),
                             ));
                         },
-                        Seek(time) =>
+                        Seek(time) => {
                             if let Ok(new_time) = self.seek_time(time) {
                                 let _ = ic.events.send(EventMessage::ChangeState(
                                     index,
                                     TrackStateChange::Position(new_time),
                                 ));
-                            },
+                            }
+                        },
                         AddEvent(evt) => {
                             let _ = ic.events.send(EventMessage::AddTrackEvent(index, evt));
                         },
@@ -296,13 +297,14 @@ impl Track {
                         Request(tx) => {
                             let _ = tx.send(self.state());
                         },
-                        Loop(loops) =>
+                        Loop(loops) => {
                             if self.set_loops(loops).is_ok() {
                                 let _ = ic.events.send(EventMessage::ChangeState(
                                     index,
                                     TrackStateChange::Loops(self.loops, true),
                                 ));
-                            },
+                            }
+                        },
                         MakePlayable => self.make_playable(),
                     }
                 },

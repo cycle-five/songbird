@@ -12,7 +12,8 @@ use futures::channel::mpsc::{TrySendError, UnboundedSender as Sender};
 use parking_lot::{lock_api::RwLockWriteGuard, Mutex as PMutex, RwLock as PRwLock};
 use serde_json::json;
 #[cfg(feature = "serenity")]
-use serenity::gateway::InterMessage;
+use serenity::gateway::ShardRunnerMessage;
+use serenity::model::voice;
 #[cfg(feature = "serenity")]
 use std::{collections::HashMap, result::Result as StdResult};
 use std::{num::NonZeroU64, sync::Arc};
@@ -68,7 +69,7 @@ impl Sharder {
 #[cfg(feature = "serenity")]
 impl Sharder {
     #[allow(unreachable_patterns)]
-    pub(crate) fn register_shard_handle(&self, shard_id: u64, sender: Sender<InterMessage>) {
+    pub(crate) fn register_shard_handle(&self, shard_id: u64, sender: Sender<ShardRunnerMessage>) {
         match self {
             Sharder::Serenity(s) => s.register_shard_handle(shard_id, sender),
             _ => error!("Called serenity management function on a non-serenity Songbird instance."),
@@ -105,7 +106,7 @@ impl SerenitySharder {
         })
     }
 
-    fn register_shard_handle(&self, shard_id: u64, sender: Sender<InterMessage>) {
+    fn register_shard_handle(&self, shard_id: u64, sender: Sender<ShardRunnerMessage>) {
         // Write locks are only used to add new entries to the map.
         let handle = self.get_or_insert_shard_handle(shard_id);
 
@@ -173,7 +174,7 @@ impl VoiceUpdate for Shard {
         match self {
             #[cfg(feature = "serenity")]
             Shard::Serenity(handle) => {
-                let map = json!({
+                let _map = json!({
                     "op": 4,
                     "d": {
                         "channel_id": channel_id.map(|c| c.0),
@@ -182,8 +183,9 @@ impl VoiceUpdate for Shard {
                         "self_mute": self_mute,
                     }
                 });
+                //let message = VoiceState::new(nz_guild_id, nz_channel_id, self_deaf, self_mute);
 
-                handle.send(InterMessage::Json(map))?;
+                //handle.send(ShardRunnerMessage::Message())?;
                 Ok(())
             },
             #[cfg(feature = "twilight")]
@@ -200,9 +202,10 @@ impl VoiceUpdate for Shard {
                 handle.command(&cmd).await?;
                 Ok(())
             },
-            Shard::Generic(g) =>
+            Shard::Generic(g) => {
                 g.update_voice_state(guild_id, channel_id, self_deaf, self_mute)
-                    .await,
+                    .await
+            },
         }
     }
 }
@@ -235,13 +238,13 @@ pub trait VoiceUpdate {
 /// a reconnect/rebalance is ongoing.
 #[derive(Debug, Default)]
 pub struct SerenityShardHandle {
-    sender: PRwLock<Option<Sender<InterMessage>>>,
-    queue: PMutex<Vec<InterMessage>>,
+    sender: PRwLock<Option<Sender<ShardRunnerMessage>>>,
+    queue: PMutex<Vec<ShardRunnerMessage>>,
 }
 
 #[cfg(feature = "serenity")]
 impl SerenityShardHandle {
-    fn register(&self, sender: Sender<InterMessage>) {
+    fn register(&self, sender: Sender<ShardRunnerMessage>) {
         debug!("Adding shard handle send channel...");
 
         let mut sender_lock = self.sender.write();
@@ -282,7 +285,7 @@ impl SerenityShardHandle {
         debug!("Removed shard handle send channel.");
     }
 
-    fn send(&self, message: InterMessage) -> StdResult<(), TrySendError<InterMessage>> {
+    fn send(&self, message: ShardRunnerMessage) -> StdResult<(), TrySendError<ShardRunnerMessage>> {
         let sender_lock = self.sender.read();
         if let Some(sender) = &*sender_lock {
             sender.unbounded_send(message)
