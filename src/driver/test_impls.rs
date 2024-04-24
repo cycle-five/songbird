@@ -1,7 +1,8 @@
 #![allow(missing_docs)]
 
+
 use crate::{
-    constants::*,
+    constants::STEREO_FRAME_SIZE,
     driver::crypto::KEY_SIZE,
     input::{
         cached::Compressed,

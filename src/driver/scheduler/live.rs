@@ -327,6 +327,7 @@ impl Live {
             return;
         }
 
+        #[allow(dead_code)]
         self._march_deadline();
     }
 
