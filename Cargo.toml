@@ -63,6 +63,7 @@ uuid = { features = ["v4"], optional = true, version = "1" }
 [dependencies.serenity]
 git = "https://github.com/CycleFive/serenity.git"
 branch = "current"
+version = "0.12.2"
 optional = true
 default-features = false
 features = ["voice", "gateway", "rustls_backend"]
