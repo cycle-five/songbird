@@ -21,7 +21,11 @@ bytes = { optional = true, version = "1" }
 crypto_secretbox = { optional = true, features = ["std"], version = "0.1" }
 dashmap = { optional = true, version = "5" }
 derivative = "2"
-discortp = { default-features = false, features = ["discord", "pnet", "rtp"], optional = true, version = "0.6" }
+discortp = { default-features = false, features = [
+  "discord",
+  "pnet",
+  "rtp",
+], optional = true, version = "0.6" }
 flume = { optional = true, version = "0.11" }
 futures = "0.3"
 nohash-hasher = { optional = true, version = "0.2.0" }
@@ -29,20 +33,25 @@ once_cell = { optional = true, version = "1" }
 parking_lot = { optional = true, version = "0.12" }
 pin-project = "1"
 rand = { optional = true, version = "0.8" }
-reqwest = { default-features = false, features = ["stream"], optional = true, version = "0.11" }
+reqwest = { default-features = false, features = [
+  "stream",
+], optional = true, version = "0.12" }
 ringbuf = { optional = true, version = "0.4" }
 rubato = { optional = true, version = "0.15" }
 rusty_pool = { optional = true, version = "0.7" }
 serde = { version = "1", features = ["derive"] }
-serde-aux = { optional = true, version = "4"}
+serde-aux = { optional = true, version = "4" }
 serde_json = "1"
-serenity = { default-features = false, optional = true, version = "0.12.0", features = ["voice", "gateway"] }
+serenity = { git = "https://github.com/CycleFive/serenity.git", branch = "current", default-features = false, optional = true, version = "0.12.2", features = [
+  "voice",
+  "gateway",
+] }
 serenity-voice-model = { optional = true, version = "0.2" }
 simd-json = { features = ["serde_impl"], optional = true, version = "0.13" }
 socket2 = { optional = true, version = "0.5" }
 streamcatcher = { optional = true, version = "1" }
-stream_lib = { optional = true, version = "0.4.1" }
-symphonia = { default_features = false, optional = true, version = "0.5.2" }
+stream_lib = { default-features = false, optional = true, version = "0.5.2" }
+symphonia = { default-features = false, optional = true, version = "0.5.2" }
 symphonia-core = { optional = true, version = "0.5.2" }
 tokio = { default-features = false, optional = true, version = "1.0" }
 tokio-tungstenite = { optional = true, version = "0.23" }
@@ -64,73 +73,70 @@ tokio = { version = "1", features = ["rt", "rt-multi-thread", "test-util"] }
 
 [features]
 # Core features
-default = [
-    "driver",
-    "gateway",
-    "rustls",
-    "serenity",
-]
+default = ["driver", "gateway", "rustls", "serenity"]
 gateway = [
-    "dep:async-trait",
-    "dep:dashmap",
-    "dep:flume",
-    "dep:once_cell",
-    "dep:parking_lot",
-    "dep:tokio",
-    "tokio?/sync",
-    "tokio?/time",
+  "dep:async-trait",
+  "dep:dashmap",
+  "dep:flume",
+  "dep:once_cell",
+  "dep:parking_lot",
+  "dep:tokio",
+  "tokio?/sync",
+  "tokio?/time",
 ]
 driver = [
-    "dep:async-trait",
-    "dep:audiopus",
-    "dep:byteorder",
-    "dep:bytes",
-    "dep:crypto_secretbox",
-    "dep:discortp",
-    "dep:flume",
-    "dep:nohash-hasher",
-    "dep:once_cell",
-    "dep:parking_lot",
-    "dep:rand",
-    "dep:reqwest",
-    "dep:ringbuf",
-    "dep:rubato",
-    "dep:rusty_pool",
-    "dep:serde-aux",
-    "dep:serenity-voice-model",
-    "dep:socket2",
-    "dep:stream_lib",
-    "dep:streamcatcher",
-    "dep:symphonia",
-    "dep:symphonia-core",
-    "dep:tokio",
-    "dep:tokio-tungstenite",
-    "dep:tokio-util",
-    "dep:typemap_rev",
-    "dep:url",
-    "dep:uuid",
-    "tokio?/fs",
-    "tokio?/io-util",
-    "tokio?/macros",
-    "tokio?/net",
-    "tokio?/process",
-    "tokio?/rt",
-    "tokio?/sync",
-    "tokio?/time",
+  "dep:async-trait",
+  "dep:audiopus",
+  "dep:byteorder",
+  "dep:bytes",
+  "dep:crypto_secretbox",
+  "dep:discortp",
+  "dep:flume",
+  "dep:nohash-hasher",
+  "dep:once_cell",
+  "dep:parking_lot",
+  "dep:rand",
+  "dep:reqwest",
+  "dep:ringbuf",
+  "dep:rubato",
+  "dep:rusty_pool",
+  "dep:serde-aux",
+  "dep:serenity-voice-model",
+  "dep:socket2",
+  "dep:stream_lib",
+  "dep:streamcatcher",
+  "dep:symphonia",
+  "dep:symphonia-core",
+  "dep:tokio",
+  "dep:tokio-tungstenite",
+  "dep:tokio-util",
+  "dep:typemap_rev",
+  "dep:url",
+  "dep:uuid",
+  "tokio?/fs",
+  "tokio?/io-util",
+  "tokio?/macros",
+  "tokio?/net",
+  "tokio?/process",
+  "tokio?/rt",
+  "tokio?/sync",
+  "tokio?/time",
 ]
 rustls = [
-    "reqwest?/rustls-tls",
-    "serenity?/rustls_backend",
-    "tokio-tungstenite?/rustls-tls-webpki-roots",
-    "twilight-gateway?/rustls-native-roots",
+  "reqwest?/rustls-tls",
+  "serenity?/rustls_backend",
+  "stream_lib?/rustls-tls",
+  "tokio-tungstenite?/rustls-tls-webpki-roots",
+  "twilight-gateway?/rustls-native-roots",
 ]
 native = [
-    "reqwest?/native-tls",
-    "serenity?/native_tls_backend",
-    "tokio-tungstenite?/native-tls",
-    "twilight-gateway?/native",
+  "reqwest?/native-tls",
+  "serenity?/native_tls_backend",
+  "stream_lib?/native-tls",
+  "tokio-tungstenite?/native-tls",
+  "twilight-gateway?/native",
 ]
-twilight = ["dep:twilight-gateway","dep:twilight-model"]
+twilight = ["dep:twilight-gateway", "dep:twilight-model"]
 
 # Behaviour altering features.
 builtin-queue = []
